@@ -2,8 +2,10 @@
 
 import chromadb
 from rank_bm25 import BM25Okapi
+import numpy as np
 from langchain.messages import HumanMessage
 from graph.states import SupportState, InternalSubgraphState
+from model.reranker import get_reranker
 from prompts import prompts
 
 from model.classifier import get_classifier_model
@@ -79,12 +81,29 @@ def fuse(state: InternalSubgraphState):
         documents_w_scores[dense_doc] = dense_rrf
         documents_w_scores[sparse_doc] = sparse_rrf
 
-    documents_w_scores = dict(sorted(documents_w_scores.items(), key=lambda item: item[1]))
+    documents_w_scores = dict(sorted(documents_w_scores.items(), reverse=True, key=lambda item: item[1]))
+    
+    result = {}
+    for k, v in documents_w_scores.items():
+        result[k] = v
+        if len(result) == 10:
+            break
 
-    return {"fused_ranking": documents_w_scores}
+    return {"fused_ranking": result}
 
-def rerank():
-    pass
+def rerank(state: InternalSubgraphState):
+    """Rerank documents with a cross-encoder"""
+
+    query = state["query"]
+    docs = state["fused_ranking"]
+    
+    top_k = 5
+    scores = np.array(get_reranker().predict([(query, doc) for doc in list(docs.key())]))
+    
+    indices_of_max_values = np.argpartition(scores, -top_k)[-top_k:]
+    result = [list(docs.keys())[i] for i in indices_of_max_values]
+    
+    return {"retrieved_docs": result}
 
 def generate_answer():
     pass

@@ -17,3 +17,4 @@ class InternalSubgraphState(MessagesState):
     dense_search_result: QueryResult
     sparse_search_result: List[str]
     fused_ranking: Dict
+    retrieved_docs: List[str]
