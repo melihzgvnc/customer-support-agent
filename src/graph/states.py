@@ -1,7 +1,7 @@
 """Graph state definitions"""
 
 from langgraph.graph import MessagesState
-from typing import Literal, List
+from typing import Literal, List, Dict
 from chromadb.api.types import QueryResult
 
 class SupportState(MessagesState):
@@ -14,5 +14,6 @@ class SupportState(MessagesState):
 
 class InternalSubgraphState(MessagesState):
     query: str
-    dense_search_results: QueryResult
-    sparse_search_results: List[List[str]]
+    dense_search_result: QueryResult
+    sparse_search_result: List[str]
+    fused_ranking: Dict
