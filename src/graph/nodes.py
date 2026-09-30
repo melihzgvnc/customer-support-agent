@@ -4,7 +4,7 @@ import chromadb
 from rank_bm25 import BM25Okapi
 import numpy as np
 from langchain.messages import HumanMessage
-from graph.states import SupportState, InternalSubgraphState
+from graph.states import SupportState, InternalSubgraphState, OutputSubgraphState
 from prompts import prompts
 
 from model.classifier import get_classifier_model
@@ -22,9 +22,6 @@ def classify_intent(state: SupportState):
     response = get_classifier_model().invoke([input_msg])
 
     return {"query": query ,"intent": response.topic}    
-
-def retrieve_and_answer(state):
-    pass
 
 def respond(state):
     pass
@@ -106,7 +103,7 @@ def rerank(state: InternalSubgraphState):
     
     return {"retrieved_docs": result}
 
-def generate_answer(state: InternalSubgraphState):
+def generate_answer(state: InternalSubgraphState) -> OutputSubgraphState:
     """Answer to the query based on the retrieved docs"""
 
     query = state["query"]
@@ -117,4 +114,4 @@ def generate_answer(state: InternalSubgraphState):
 
     response = get_responder_model.invoke([input_msg])
 
-    return {"answer": response.answer, "confidence": response.confidence}
+    return {"answer": response}
