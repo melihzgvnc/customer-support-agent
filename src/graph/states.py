@@ -11,6 +11,7 @@ class SupportState(MessagesState):
     confidence: float
     clarify_count: int
     resolution: Literal["resolved", "pending", "escalated"]
+    answer: str
 
 class InternalSubgraphState(MessagesState):
     query: str
@@ -18,3 +19,4 @@ class InternalSubgraphState(MessagesState):
     sparse_search_result: List[str]
     fused_ranking: Dict
     retrieved_docs: List[str]
+    answer : str

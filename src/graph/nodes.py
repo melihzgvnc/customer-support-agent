@@ -5,10 +5,11 @@ from rank_bm25 import BM25Okapi
 import numpy as np
 from langchain.messages import HumanMessage
 from graph.states import SupportState, InternalSubgraphState
-from model.reranker import get_reranker
 from prompts import prompts
 
 from model.classifier import get_classifier_model
+from model.reranker import get_reranker_model
+from model.responder import get_responder_model
 
 def classify_intent(state: SupportState):
     """Classify user intent"""
@@ -98,12 +99,22 @@ def rerank(state: InternalSubgraphState):
     docs = state["fused_ranking"]
     
     top_k = 5
-    scores = np.array(get_reranker().predict([(query, doc) for doc in list(docs.key())]))
+    scores = np.array(get_reranker_model().predict([(query, doc) for doc in list(docs.key())]))
     
     indices_of_max_values = np.argpartition(scores, -top_k)[-top_k:]
     result = [list(docs.keys())[i] for i in indices_of_max_values]
     
     return {"retrieved_docs": result}
 
-def generate_answer():
-    pass
+def generate_answer(state: InternalSubgraphState):
+    """Answer to the query based on the retrieved docs"""
+
+    query = state["query"]
+    retrieved_docs = state["retrieved_docs"]
+
+    prompt = prompts.RESPONDER_PROMPT.format(query=query, retrieved_docs=retrieved_docs)
+    input_msg = HumanMessage(content=prompt)
+
+    response = get_responder_model.invoke([input_msg])
+
+    return {"answer": response.answer, "confidence": response.confidence}
