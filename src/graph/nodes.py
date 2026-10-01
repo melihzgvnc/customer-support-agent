@@ -3,13 +3,14 @@
 import chromadb
 from rank_bm25 import BM25Okapi
 import numpy as np
-from langchain.messages import HumanMessage
+from langchain.messages import HumanMessage, AIMessage
+
 from graph.states import SupportState, InternalSubgraphState, OutputSubgraphState
 from prompts import prompts
-
 from model.classifier import get_classifier_model
 from model.reranker import get_reranker_model
 from model.responder import get_responder_model
+from integrations.zendesk import build_zendesk_payload, create_ticket
 
 def classify_intent(state: SupportState):
     """Classify user intent"""
@@ -23,29 +24,34 @@ def classify_intent(state: SupportState):
 
     return {"query": query ,"intent": response.topic}    
 
-def respond(state: InternalSubgraphState):
+def respond(state: SupportState):
     """Return the answer to the user"""
     
-    answer = state["answer"]
-    
-    return {"messages": answer, "resolution": "resolved"}
+    answer = AIMessage(content=state["answer"])
 
-def clarify(state):
+    return {"messages": [answer], "resolution": "resolved"}
+
+def clarify(state: SupportState):
     """Request more detail from the user"""
 
     clarify_count = state["clarify_count"]
     clarify_count += 1
     message = """I couldn't find relevant info regarding your question.
     Please provide more details on your issue."""
+    message = AIMessage(content=message)
 
-    return {"messages": message, "clarify_count": clarify_count, "resolution": "pending"}
+    return {"messages": [message], "clarify_count": clarify_count, "resolution": "pending"}
 
-def escalate(state):
+def escalate(state: SupportState):
     """Escalate the query to human"""
     
     message = """A human will be with you shortly. Please wait.."""
+    message = AIMessage(content=message)
 
-    return {"messages": message, "resolution": "escalated"}
+    payload = build_zendesk_payload(state)
+    create_ticket(payload)
+
+    return {"messages": [message], "resolution": "escalated"}
 
 
 # ------ SUB-GRAPH (RAG) -------
@@ -128,5 +134,5 @@ def generate_answer(state: InternalSubgraphState) -> OutputSubgraphState:
     input_msg = HumanMessage(content=prompt)
 
     response = get_responder_model.invoke([input_msg])
-
+    
     return {"answer": response}
