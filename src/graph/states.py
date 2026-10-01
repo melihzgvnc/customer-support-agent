@@ -10,7 +10,7 @@ class SupportState(MessagesState):
     intent: str
     sentiment: str
     intent_confidence: int
-    clarify_count: int
+    clarify_count: 0
     resolution: Literal["resolved", "pending", "escalated"]
     answer: Answer
 

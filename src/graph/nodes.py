@@ -23,14 +23,29 @@ def classify_intent(state: SupportState):
 
     return {"query": query ,"intent": response.topic}    
 
-def respond(state):
-    pass
+def respond(state: InternalSubgraphState):
+    """Return the answer to the user"""
+    
+    answer = state["answer"]
+    
+    return {"messages": answer, "resolution": "resolved"}
 
 def clarify(state):
-    pass
+    """Request more detail from the user"""
+
+    clarify_count = state["clarify_count"]
+    clarify_count += 1
+    message = """I couldn't find relevant info regarding your question.
+    Please provide more details on your issue."""
+
+    return {"messages": message, "clarify_count": clarify_count, "resolution": "pending"}
 
 def escalate(state):
-    pass
+    """Escalate the query to human"""
+    
+    message = """A human will be with you shortly. Please wait.."""
+
+    return {"messages": message, "resolution": "escalated"}
 
 
 # ------ SUB-GRAPH (RAG) -------
