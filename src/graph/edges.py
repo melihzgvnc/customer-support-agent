@@ -5,7 +5,6 @@ from typing import Literal
 
 def route(state: SupportState) -> Literal["respond", "clarify", "escalate"]:
     answer = state["answer"]
-    confidence = answer.confidence
 
     if not answer.is_answerable:
         return "escalate"

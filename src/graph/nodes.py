@@ -22,7 +22,7 @@ def classify_intent(state: SupportState):
 
     response = get_classifier_model().invoke([input_msg])
 
-    return {"query": query ,"intent": response.topic}    
+    return {"query": query, "intent": response.topic}    
 
 def respond(state: SupportState):
     """Return the answer to the user"""
@@ -91,7 +91,7 @@ def fuse(state: InternalSubgraphState):
     n = 10 # size of each search result
     documents_w_scores = {}
     for i in range(n):
-        dense_doc = dense_search_result["documents"][0][i]
+        dense_doc = dense_search_result[i]
         sparse_doc = sparse_search_result[i]
 
         dense_rrf = dense_rank(dense_doc) + sparse_rank(dense_doc)
@@ -117,7 +117,7 @@ def rerank(state: InternalSubgraphState):
     docs = state["fused_ranking"]
     
     top_k = 5
-    scores = np.array(get_reranker_model().predict([(query, doc) for doc in list(docs.key())]))
+    scores = np.array(get_reranker_model().predict([(query, doc) for doc in list(docs.keys())]))
     
     indices_of_max_values = np.argpartition(scores, -top_k)[-top_k:]
     result = [list(docs.keys())[i] for i in indices_of_max_values]
@@ -133,6 +133,6 @@ def generate_answer(state: InternalSubgraphState) -> OutputSubgraphState:
     prompt = prompts.RESPONDER_PROMPT.format(query=query, retrieved_docs=retrieved_docs)
     input_msg = HumanMessage(content=prompt)
 
-    response = get_responder_model.invoke([input_msg])
+    response = get_responder_model().invoke([input_msg])
     
     return {"answer": response}

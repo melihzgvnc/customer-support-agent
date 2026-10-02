@@ -1,6 +1,6 @@
 """Output schemas for LLMs"""
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, Literal
 
 class Intent(BaseModel):
     topic: Literal["billing", "technical", "account"] = Field(description="Topic that is to which the query is predicted to belong")

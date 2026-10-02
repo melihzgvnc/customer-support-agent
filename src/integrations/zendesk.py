@@ -1,6 +1,7 @@
 import requests
 import os
 import json
+import sys
 from graph.states import SupportState
 # Load OAuth access token and configuration from environment variables (ensure these are set)
 ZENDESK_SUBDOMAIN = os.getenv('ZENDESK_SUBDOMAIN')
@@ -27,7 +28,7 @@ def build_zendesk_payload(state: SupportState):
             'comment': {
                 'body': summary
             },
-            'prioriy': 'urgent',
+            'priority': 'urgent',
             'tags': ['escalation', f"{state['intent']}"],
             'metadata': {
                 'custom': state
@@ -56,7 +57,7 @@ def create_ticket(payload):
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         print(f'Request failed: {e}')
-        exit(1)
+        sys.exit(1)
 
     # Report success
     print('Successfully created the ticket.')

@@ -1,16 +1,21 @@
 """Graph state definitions"""
 
+from dataclasses import dataclass, field
 from langgraph.graph import MessagesState
-from typing import Literal, List, Dict. TypedDict
+from langchain_core.messages import AnyMessage
+from langgraph.graph.message import add_messages
+from typing import Literal, List, Dict, TypedDict, Annotated
 from chromadb.api.types import QueryResult
 from model.schemas import Answer
 
-class SupportState(MessagesState):
+@dataclass
+class SupportState:
+    messages: Annotated[List[AnyMessage], add_messages] = field(default_factory=List)
     query: str
     intent: str
     sentiment: str
     intent_confidence: int
-    clarify_count: 0
+    clarify_count: int = 0
     resolution: Literal["resolved", "pending", "escalated"]
     answer: Answer
 

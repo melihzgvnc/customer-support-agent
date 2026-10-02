@@ -1,6 +1,7 @@
 """Graph builder"""
 
 from langgraph.graph import START, END, StateGraph
+from langgraph.checkpoint.postgres import PostgresSaver
 from graph.states import SupportState, InternalSubgraphState, OutputSubgraphState
 from graph.edges import route
 from graph.nodes import (
@@ -10,7 +11,7 @@ from graph.nodes import (
 
 
 # Sub-Graph Constructuion
-sub_builder - StateGraph(
+sub_builder = StateGraph(
     state_schema=InternalSubgraphState, 
     output_schema=OutputSubgraphState
 )
@@ -47,4 +48,6 @@ builder.add_edge(respond, END)
 builder.add_edge(clarify, END)
 builder.add_edge(escalate, END)
 
-graph = builder.compile()
+with PostgresSaver.from_conn_string("postgresql://user:pass@localhost/db") as checkpointer:
+    checkpointer.setup()
+    graph = builder.compile(checkpointer=checkpointer)
