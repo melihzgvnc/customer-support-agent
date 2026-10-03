@@ -1,16 +1,26 @@
 """Graph node definitions"""
 
+import json
 import chromadb
 from rank_bm25 import BM25Okapi
 import numpy as np
 from langchain.messages import HumanMessage, AIMessage
 
-from graph.states import SupportState, InternalSubgraphState, OutputSubgraphState
-from prompts import prompts
-from model.classifier import get_classifier_model
-from model.reranker import get_reranker_model
-from model.responder import get_responder_model
-from integrations.zendesk import build_zendesk_payload, create_ticket
+from src.graph.states import SupportState, InternalSubgraphState, OutputSubgraphState
+from src.prompts import prompts
+from src.model.classifier import get_classifier_model
+from src.model.reranker import get_reranker_model
+from src.model.responder import get_responder_model
+from src.integrations.zendesk import build_zendesk_payload, create_ticket
+
+
+client = chromadb.PersistentClient(path="../index/dense")
+collection = client.get_collection(name="company_support_guidelines")
+
+with open("../index/sparse/corpus.json", "r", encoding="utf-8") as f:
+    corpus = json.load(f)
+with open("../index/sparse/tokenized_corpus.json", "r", encoding="utf-8") as f:
+    tokenized_corpus = json.load(f)
 
 def classify_intent(state: SupportState):
     """Classify user intent"""
@@ -59,9 +69,6 @@ def escalate(state: SupportState):
 def dense_search(state: InternalSubgraphState):
     """Vector/Embedding search (dense index) with ChromaDB"""
     
-    client = chromadb.PersistentClient(path="path/to/data")
-    collection = client.get_collection(name="collection_name")
-
     query = state["query"]
     query_result = collection.query(query_texts=query)
     
@@ -71,7 +78,7 @@ def sparse_search(state: InternalSubgraphState):
     """Keyword search (sparse index) with BM25"""
 
     query = state["query"]
-    tokenized_query = query
+    tokenized_query = query.split(" ")
 
     bm25 = BM25Okapi(tokenized_corpus)
     query_result = bm25.get_top_n(tokenized_query, corpus, n=10)
