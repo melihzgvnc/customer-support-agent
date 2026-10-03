@@ -9,7 +9,11 @@ from chromadb.api.types import QueryResult
 from src.model.schemas import Answer
 
 @dataclass
-class SupportState:
+class InputState:
+    clarify_count: int = 0
+    messages: Annotated[list[AnyMessage], add_messages] = field(default_factory=list)
+
+class SupportState(TypedDict):
     query: str
     intent: str
     sentiment: str
