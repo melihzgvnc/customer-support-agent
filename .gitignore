@@ -8,3 +8,13 @@ wheels/
 
 # Virtual environments
 .venv
+
+.env
+
+# Data
+.DS_Store
+src/.DS_Store
+src/data/
+src/index/
+
+src/scripts

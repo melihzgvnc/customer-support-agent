@@ -2,13 +2,13 @@ import requests
 import os
 import json
 import sys
-from graph.states import SupportState
+from src.graph.states import SupportState
 # Load OAuth access token and configuration from environment variables (ensure these are set)
 ZENDESK_SUBDOMAIN = os.getenv('ZENDESK_SUBDOMAIN')
 ZENDESK_ACCESS_TOKEN = os.getenv('ZENDESK_ACCESS_TOKEN')
 
 if not ZENDESK_ACCESS_TOKEN or not ZENDESK_SUBDOMAIN:
-    print('Error: Missing required environment variables.')
+    print('Error: Missing required Zendesk environment variables.')
     exit(1)
 
 def build_zendesk_payload(state: SupportState):

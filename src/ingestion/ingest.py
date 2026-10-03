@@ -41,13 +41,15 @@ class HybridIngestion:
         self.collection.add(ids=self.ids, documents=self.documents, metadatas=self.metadatas)
 
     def bm25_ingestion(self):
+        corpus = self.documents
         tokenized_corpus = [doc.split(" ") for doc in self.documents]
 
         os.makedirs("../index/sparse", exist_ok=True)
-        with open("../index/sparse/corpus.json", "x", encoding="utf-8") as f:
+        with open("../index/sparse/corpus.json", "w", encoding="utf-8") as f:
+            json.dump(corpus, f, ensure_ascii=False)
+        with open("../index/sparse/tokenized_corpus.json", "w", encoding="utf-8") as f:
             json.dump(tokenized_corpus, f, ensure_ascii=False)
-        
-        with open("../index/sparse/ids.json", "x", encoding="utf-8") as f:
+        with open("../index/sparse/ids.json", "w", encoding="utf-8") as f:
             json.dump(self.ids, f, ensure_ascii=False)
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 """Classifier LLM for intent discovery"""
 
 from langchain_openai import ChatOpenAI
-from model.schemas import Intent
+from src.model.schemas import Intent
 from dotenv import load_dotenv
 from functools import lru_cache
 import openai
