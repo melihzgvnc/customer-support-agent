@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from functools import lru_cache
 from src.model.schemas import Answer
 from src.prompts.prompts import RESPONDER_PROMPT
+import openai
 
 @lru_cache(maxsize=1)
 def get_responder_model():
