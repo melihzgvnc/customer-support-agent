@@ -17,4 +17,7 @@ src/.DS_Store
 src/data/
 src/index/
 
-src/scripts
+# Scripts
+src/scripts/
+
+.langgraph_api/
