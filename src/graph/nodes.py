@@ -5,39 +5,53 @@ import chromadb
 from rank_bm25 import BM25Okapi
 import numpy as np
 from langchain.messages import HumanMessage, AIMessage
+from langchain_typesafe import Choice
 
 from src.graph.states import SupportState, InternalSubgraphState, OutputSubgraphState
 from src.prompts import prompts
-from src.model.classifier import get_classifier_model
+from src.model.classifier import get_classifier_model, get_classifier_jev_model
 from src.model.reranker import get_reranker_model
 from src.model.responder import get_responder_model
 from src.integrations.zendesk import build_zendesk_payload, create_ticket
 
 
-client = chromadb.PersistentClient(path="../index/dense")
+client = chromadb.PersistentClient(path="src/index/dense")
 collection = client.get_collection(name="company_support_guidelines")
 
-with open("../index/sparse/corpus.json", "r", encoding="utf-8") as f:
+with open("src/index/sparse/corpus.json", "r", encoding="utf-8") as f:
     corpus = json.load(f)
-with open("../index/sparse/tokenized_corpus.json", "r", encoding="utf-8") as f:
+with open("src/index/sparse/tokenized_corpus.json", "r", encoding="utf-8") as f:
     tokenized_corpus = json.load(f)
 
 def classify_intent(state: SupportState):
     """Classify user intent"""
     
-    query = state["messages"][-1]
+    query = state["messages"][-1].content
 
-    prompt = prompts.CLASSIFIER_PROMPT.format(query=query)
-    input_msg = HumanMessage(content=prompt)
+    # JEV Integration
+    instruction = prompts.JEV_CLASSIFIER_INSTRUCTION
+    criteria = prompts.JEV_CLASSIFIER_CRITERIA
 
-    response = get_classifier_model().invoke([input_msg])
+    response = get_classifier_jev_model().invoke({
+        "state": query,
+        "questions" : {
+            "department": Choice(instruction, criteria)
+        }
+    })
 
-    return {"query": query, "intent": response.topic}    
+    department = response.choices["department"]
+
+    # prompt = prompts.CLASSIFIER_PROMPT.format(query=query)
+    # input_msg = HumanMessage(content=prompt)
+    # response = get_classifier_model().invoke([input_msg])
+    return {"query": query, "intent": response.topic, "intent_confidence": response.confidence}    
+    
+    return {"query": query, "intent": department.choice, "intent_confidence": department.confidence}    
 
 def respond(state: SupportState):
     """Return the answer to the user"""
     
-    answer = AIMessage(content=state["answer"])
+    answer = AIMessage(content=state["answer"].answer)
 
     return {"messages": [answer], "resolution": "resolved"}
 

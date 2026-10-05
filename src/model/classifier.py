@@ -1,6 +1,7 @@
 """Classifier LLM for intent discovery"""
 
 from langchain_openai import ChatOpenAI
+from langchain_typesafe import TypeSafeClassifier
 from src.model.schemas import Intent
 from dotenv import load_dotenv
 from functools import lru_cache
@@ -15,3 +16,10 @@ def get_classifier_model():
         openai.RateLimitError, openai.InternalServerError),
         stop_after_attempt=3
     )
+
+@lru_cache(maxsize=1)
+def get_classifier_jev_model():
+    load_dotenv()
+    model = TypeSafeClassifier()
+
+    return model

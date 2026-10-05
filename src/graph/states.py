@@ -17,11 +17,11 @@ class SupportState(TypedDict):
     query: str
     intent: str
     sentiment: str
-    intent_confidence: int
+    intent_confidence: float
     resolution: Literal["resolved", "pending", "escalated"]
     answer: Answer
-    clarify_count: int = 0
-    messages: Annotated[list[AnyMessage], add_messages] = field(default_factory=list)
+    clarify_count: int
+    messages: Annotated[list[AnyMessage], add_messages]
 
 class InternalSubgraphState(TypedDict):
     query: str

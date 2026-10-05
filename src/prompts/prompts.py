@@ -11,6 +11,16 @@ Classify it into one of the topics: account, billing, data privacy, api usage, t
 Provide confidence score between 1-10 for your prediction. 
 """
 
+JEV_CLASSIFIER_INSTRUCTION = """Which department does this query belong to?"""
+
+JEV_CLASSIFIER_CRITERIA = {
+        "account": "Login/signup, account management issues",  
+        "billing": "Payment, invoice or subscription issues", 
+        "data privacy": "User data, data storage/deletion related queries", 
+        "api usage": "API docs, technical related issues", 
+        "troubleshooting": "Product bugs, system errors"
+    }
+
 RESPONDER_PROMPT = """
 You are a helpful assistant.
 Your task is to first decide if a query is answerable given some context 
