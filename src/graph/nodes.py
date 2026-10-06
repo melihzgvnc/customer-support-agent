@@ -41,12 +41,14 @@ def classify_intent(state: SupportState):
 
     department = response.choices["department"]
 
+    return {"query": query, "intent": department.choice, "intent_confidence": department.confidence}    
+    
+    # OPENAI Integration
     # prompt = prompts.CLASSIFIER_PROMPT.format(query=query)
     # input_msg = HumanMessage(content=prompt)
     # response = get_classifier_model().invoke([input_msg])
-    return {"query": query, "intent": response.topic, "intent_confidence": response.confidence}    
+    # return {"query": query, "intent": response.topic, "intent_confidence": response.confidence}    
     
-    return {"query": query, "intent": department.choice, "intent_confidence": department.confidence}    
 
 def respond(state: SupportState):
     """Return the answer to the user"""
