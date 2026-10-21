@@ -1,6 +1,6 @@
 {
     "graphs": {
-        "support_agent": "./src/graph/builder.py:graph"
+        "support_agent": "./src/support_agent/graph/builder.py:graph"
     },
     "python_version": "3.11",
     "env": ".env",

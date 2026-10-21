@@ -14,10 +14,10 @@ wheels/
 # Data
 .DS_Store
 src/.DS_Store
-src/data/
+data/
 src/index/
 
 # Scripts
-src/scripts/
+scripts/
 
 .langgraph_api/

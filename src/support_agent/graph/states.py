@@ -6,7 +6,7 @@ from langchain_core.messages import AnyMessage
 from langgraph.graph.message import add_messages
 from typing import Literal, TypedDict, Annotated
 from chromadb.api.types import QueryResult
-from src.model.schemas import Answer
+from support_agent.model.schemas import Answer
 
 @dataclass
 class InputState:

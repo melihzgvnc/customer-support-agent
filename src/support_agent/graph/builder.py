@@ -3,9 +3,9 @@
 from langgraph.graph import START, END, StateGraph
 from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.checkpoint.memory import InMemorySaver
-from src.graph.states import InputState, SupportState, InternalSubgraphState, OutputSubgraphState
-from src.graph.edges import route
-from src.graph.nodes import (
+from support_agent.graph.states import InputState, SupportState, InternalSubgraphState, OutputSubgraphState
+from support_agent.graph.edges import route
+from support_agent.graph.nodes import (
     classify_intent, respond, clarify, escalate,
     dense_search, sparse_search, fuse, rerank, generate_answer
 )
@@ -55,3 +55,8 @@ builder.add_edge('escalate', END)
 
 
 graph = builder.compile()
+
+# Graph build factory
+def build_graph(checkpointer=None):
+    graph = builder.compile(checkpointer=checkpointer)
+    return graph

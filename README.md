@@ -71,7 +71,7 @@ OPENAI_API_KEY=your_api_key
 ### Running the Agent
 
 ```python
-from src.graph.builder import graph
+from support_agent.graph.builder import graph
 
 result = graph.invoke({"messages": [{"role": "user", "content": "How do I reset my password?"}]})
 print(result)
@@ -80,7 +80,7 @@ print(result)
 ### Ingesting New Data
 
 ```bash
-python -m src.ingestion.ingest
+python -m support_agent.ingestion.ingest
 ```
 
 Place your knowledge base documents in `src/data/` with the format:

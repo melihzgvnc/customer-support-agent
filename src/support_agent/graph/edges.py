@@ -1,6 +1,6 @@
 """Graph conditional edge definitions"""
 
-from src.graph.states import SupportState
+from support_agent.graph.states import SupportState
 from typing import Literal
 
 def route(state: SupportState) -> Literal["respond", "clarify", "escalate"]:
