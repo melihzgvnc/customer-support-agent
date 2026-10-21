@@ -3,7 +3,7 @@ import os
 import json
 import sys
 from pydantic_core import to_jsonable_python
-from src.graph.states import SupportState
+from support_agent.graph.states import SupportState
 # Load OAuth access token and configuration from environment variables (ensure these are set)
 
 
@@ -11,16 +11,17 @@ ZENDESK_SUBDOMAIN = os.getenv('ZENDESK_SUBDOMAIN')
 ZENDESK_CLIENT_ID = os.getenv('ZENDESK_CLIENT_ID')
 ZENDESK_CLIENT_SECRET = os.getenv('ZENDESK_CLIENT_SECRET')
 
-URL = f"https://{os.environ['ZENDESK_SUBDOMAIN']}.zendesk.com/oauth/tokens"
+URL = f"https://{ZENDESK_SUBDOMAIN}.zendesk.com/oauth/tokens"
 
 payload = {
   "grant_type": "client_credentials",
-  "client_id": os.environ['ZENDESK_CLIENT_ID'],
-  "client_secret": os.environ['ZENDESK_CLIENT_SECRET'],
+  "client_id": ZENDESK_CLIENT_ID,
+  "client_secret": ZENDESK_CLIENT_SECRET,
   "scope": "read write"
 }
 
 response = requests.post(url=URL, json=payload)
+print(response)
 ZENDESK_ACCESS_TOKEN = json.loads(response.content)['access_token']
 
 
