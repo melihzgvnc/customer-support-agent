@@ -30,25 +30,37 @@ def classify_intent(state: SupportState):
     query = state["messages"][-1].content
 
     # JEV Integration
-    # instruction = prompts.JEV_CLASSIFIER_INSTRUCTION
-    # criteria = prompts.JEV_CLASSIFIER_CRITERIA
-
-    # response = get_classifier_jev_model().invoke({
+    instruction = prompts.JEV_CLASSIFIER_INSTRUCTION
+    criteria = prompts.JEV_CLASSIFIER_CRITERIA
+    payload = {
+        "state": query,
+        "questions" : {
+            "department": Choice(instructions=instruction, criteria=criteria)
+        }
+    }
+    # payload = {
     #     "state": query,
     #     "questions" : {
-    #         "department": Choice(instruction, criteria)
+    #         "department": {
+    #             "instructions": instruction,
+    #             "criteria": criteria,
+    #             "type": "choice"
+    #         }
     #     }
-    # })
+    # }
 
-    # department = response.choices["department"]
 
-    # return {"query": query, "intent": department.choice, "intent_confidence": department.confidence}    
+    response = get_classifier_jev_model().invoke(payload)
+
+    department = response.choices["department"]
+
+    return {"query": query, "intent": department.choice, "intent_confidence": department.confidence}    
     
     # OPENAI Integration
-    prompt = prompts.CLASSIFIER_PROMPT.format(query=query)
-    input_msg = HumanMessage(content=prompt)
-    response = get_classifier_model().invoke([input_msg])
-    return {"query": query, "intent": response.topic, "intent_confidence": response.confidence}    
+    # prompt = prompts.CLASSIFIER_PROMPT.format(query=query)
+    # input_msg = HumanMessage(content=prompt)
+    # response = get_classifier_model().invoke([input_msg])
+    # return {"query": query, "intent": response.topic, "intent_confidence": response.confidence}    
     
 
 def respond(state: SupportState):
