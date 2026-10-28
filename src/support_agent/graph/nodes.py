@@ -7,7 +7,7 @@ import numpy as np
 from langchain.messages import HumanMessage, AIMessage
 from langchain_typesafe import Choice
 
-from support_agent.config import settings
+from support_agent.config import get_settings
 from support_agent.graph.states import SupportState, InternalSubgraphState, OutputSubgraphState
 from support_agent.prompts import prompts
 from support_agent.model.classifier import get_classifier_model, get_classifier_jev_model
@@ -15,6 +15,7 @@ from support_agent.model.reranker import get_reranker_model
 from support_agent.model.responder import get_responder_model
 # from support_agent.integrations.zendesk import build_zendesk_payload, create_ticket
 
+settings = get_settings()
 
 client = chromadb.PersistentClient(path=settings.dense_index_path)
 collection = client.get_collection(name="company_support_guidelines")
