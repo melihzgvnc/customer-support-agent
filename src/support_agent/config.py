@@ -1,24 +1,23 @@
 from pathlib import Path
 from functools import lru_cache
 from typing import Literal
-from pydantic import SecretStr, HttpUrl
+from pydantic import SecretStr, HttpUrl, BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
-class LLMSettings(BaseSettings):
+class LLMSettings(BaseModel):
     openrouter_api_key: SecretStr
     openrouter_base_url: HttpUrl
     openai_api_key: SecretStr
-    langsmith_api_key: SecretStr | None
 
-class WebhookSettings(BaseSettings):
+class WebhookSettings(BaseModel):
     zendesk_subdomain: str
     zendesk_client_id: str
     zendesk_client_secret: SecretStr
 
-class MonitorSettings(BaseSettings):
+class MonitorSettings(BaseModel):
     langsmith_api_key: SecretStr
 
 class Settings(BaseSettings):
