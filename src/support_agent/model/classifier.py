@@ -27,6 +27,6 @@ def get_classifier_model():
 def get_classifier_jev_model():
     model = TypeSafeClassifier(
         api_key = settings.llm.openrouter_api_key,
-        base_url = settings.llm.openrouter_base_url
+        base_url = str(settings.llm.openrouter_base_url) # typesafe expects string
     )
     return model
