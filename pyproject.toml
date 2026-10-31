@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "boto3>=1.43.123",
     "chromadb>=1.5.9",
     "dotenv>=0.9.9",
     "fastapi[standard]>=0.143.1",
@@ -16,6 +17,7 @@ dependencies = [
     "langgraph-checkpoint-postgres>=3.1.2",
     "langgraph-cli[inmem]>=0.4.32",
     "psycopg[binary]>=3.3.6",
+    "pydantic-file-secrets>=0.4.4",
     "rank-bm25>=0.2.2",
     "sentence-transformers>=6.1.0",
 ]

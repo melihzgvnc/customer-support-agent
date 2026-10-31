@@ -1,6 +1,8 @@
 __pycache__
 langgraph_api/
+.agents/
 scripts/
 langgraph.json
+secrets/
 .env
 .gitignore

@@ -9,6 +9,8 @@ wheels/
 # Virtual environments
 .venv
 
+# Env vars
+secrets/
 .env
 
 # Data
@@ -21,3 +23,4 @@ src/index/
 scripts/
 
 .langgraph_api/
+.agents/

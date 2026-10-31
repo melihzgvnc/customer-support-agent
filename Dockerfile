@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install uv
+RUN pip install --no-cache-dir uv
 
 
 # ----STAGE: API Dependencies----
@@ -31,7 +31,7 @@ RUN uv sync --frozen --no-dev
 # ----STAGE: Ingestion----
 FROM base AS ingest
 
-RUN pip install chromadb
+RUN pip install --no-cache-dir chromadb
 
 COPY ./data/ingestion /app/ingestion
 
@@ -41,11 +41,9 @@ CMD ["uv", "run", "/app/ingestion/ingest.py"]
 # ----STAGE: API Runtime----
 FROM api-deps AS api
 
-WORKDIR app/
-
 # Copy the pre-built virtual environment and model cache from base
-COPY --from=api-base /app/.venv/ /app/.venv/
-COPY --from=api-base /hf /hf
+COPY --from=api-deps /app/.venv/ /app/.venv/
+COPY --from=api-deps /hf /hf
 
 # Set correct runtime environment variables & fixed virtualenv path
 ENV PATH="/app/.venv/bin:$PATH" HF_HOME=/hf HF_HUB_OFFLINE=1
