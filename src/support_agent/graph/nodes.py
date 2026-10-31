@@ -2,11 +2,13 @@
 
 import json
 import chromadb
+import boto3
 from rank_bm25 import BM25Okapi
 import numpy as np
 from langchain.messages import HumanMessage, AIMessage
 from langchain_typesafe import Choice
 
+from support_agent.graph.utils import get_s3_client
 from support_agent.config import get_settings
 from support_agent.graph.states import SupportState, InternalSubgraphState, OutputSubgraphState
 from support_agent.prompts import prompts
@@ -17,13 +19,18 @@ from support_agent.model.responder import get_responder_model
 
 settings = get_settings()
 
-client = chromadb.PersistentClient(path=settings.dense_index_path)
-collection = client.get_collection(name="company_support_guidelines")
+chr_client = chromadb.HttpClient()
+collection = chr_client.get_collection(name="company_support_guidelines")
 
-with open(settings.sparse_index_path/"corpus.json", "r", encoding="utf-8") as f:
-    corpus = json.load(f)
-with open(settings.sparse_index_path/"tokenized_corpus.json", "r", encoding="utf-8") as f:
-    tokenized_corpus = json.load(f)
+s3_client = get_s3_client()
+
+corpus = json.loads(s3_client.get_object(Bucket="sparse-index", Key="corpus"))
+tokenized_corpus = json.loads(s3_client.get_object(Bucket="sparse-index", Key="tokenized-corpus")["Body"].read().decode("utf-8"))
+
+# with open(settings.sparse_index_path/"corpus.json", "r", encoding="utf-8") as f:
+#     corpus = json.load(f)
+# with open(settings.sparse_index_path/"tokenized_corpus.json", "r", encoding="utf-8") as f:
+#     tokenized_corpus = json.load(f)
 
 def classify_intent(state: SupportState):
     """Classify user intent"""
@@ -39,16 +46,6 @@ def classify_intent(state: SupportState):
             "department": Choice(instructions=instruction, criteria=criteria)
         }
     }
-    # payload = {
-    #     "state": query,
-    #     "questions" : {
-    #         "department": {
-    #             "instructions": instruction,
-    #             "criteria": criteria,
-    #             "type": "choice"
-    #         }
-    #     }
-    # }
 
 
     response = get_classifier_jev_model().invoke(payload)
