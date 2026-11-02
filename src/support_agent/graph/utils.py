@@ -1,12 +1,14 @@
 import boto3 
+from botocore.config import Config
 from support_agent.config import get_settings
 
+settings = get_settings()
 
-def get_client(endpoint_url="http://localhost:3900"):
+def get_s3_client(host="localhost", port=3900):
     client = boto3.client(
         "s3",
         region_name="garage",
-        endpoint_url=endpoint_url,
+        endpoint_url=f"http://{host}:{port}",
         aws_access_key_id=settings.db.s3_access_key_id,
         aws_secret_access_key=settings.db.s3_secret_access_key,
         config = Config(

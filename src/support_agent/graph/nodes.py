@@ -19,18 +19,13 @@ from support_agent.model.responder import get_responder_model
 
 settings = get_settings()
 
-chr_client = chromadb.HttpClient()
+chr_client = chromadb.HttpClient(host="chromadb")
 collection = chr_client.get_collection(name="company_support_guidelines")
 
-s3_client = get_s3_client()
+s3_client = get_s3_client(host="garage")
 
-corpus = json.loads(s3_client.get_object(Bucket="sparse-index", Key="corpus"))
+corpus = json.loads(s3_client.get_object(Bucket="sparse-index", Key="corpus")["Body"].read().decode("utf-8"))
 tokenized_corpus = json.loads(s3_client.get_object(Bucket="sparse-index", Key="tokenized-corpus")["Body"].read().decode("utf-8"))
-
-# with open(settings.sparse_index_path/"corpus.json", "r", encoding="utf-8") as f:
-#     corpus = json.load(f)
-# with open(settings.sparse_index_path/"tokenized_corpus.json", "r", encoding="utf-8") as f:
-#     tokenized_corpus = json.load(f)
 
 def classify_intent(state: SupportState):
     """Classify user intent"""
