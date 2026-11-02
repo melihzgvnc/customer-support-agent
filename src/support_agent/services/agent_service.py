@@ -1,6 +1,5 @@
 """Thin wrapper over the graph"""
 from langchain_core.messages import HumanMessage
-import asyncio
 
 async def aget_response(query, config, graph):
     input_message = {"messages": [HumanMessage(content=query)]}

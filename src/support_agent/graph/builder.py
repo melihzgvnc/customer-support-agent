@@ -1,7 +1,11 @@
 """Graph builder"""
+import os
+from support_agent.config import get_settings
+from typing import Literal
 
 from langgraph.graph import START, END, StateGraph
 from langgraph.checkpoint.postgres import PostgresSaver
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langgraph.checkpoint.memory import InMemorySaver
 from support_agent.graph.states import InputState, SupportState, InternalSubgraphState, OutputSubgraphState
 from support_agent.graph.edges import route
@@ -9,6 +13,8 @@ from support_agent.graph.nodes import (
     classify_intent, respond, clarify, escalate,
     dense_search, sparse_search, fuse, rerank, generate_answer
 )
+
+settings = get_settings()
 
 # Sub-Graph Constructuion
 sub_builder = StateGraph(
@@ -47,16 +53,3 @@ builder.add_conditional_edges('subgraph', route)
 builder.add_edge('respond', END)
 builder.add_edge('clarify', END)
 builder.add_edge('escalate', END)
-
-# Postgres in production
-# with PostgresSaver.from_conn_string("postgresql://user:pass@localhost/db") as checkpointer:
-#     checkpointer.setup()
-#     graph = builder.compile(checkpointer=checkpointer)
-
-
-graph = builder.compile()
-
-# Graph build factory
-def build_graph(checkpointer=None):
-    graph = builder.compile(checkpointer=checkpointer)
-    return graph

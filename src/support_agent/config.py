@@ -54,8 +54,8 @@ class Settings(BaseSettings):
         env_file=Path(__file__).resolve().parents[2]/".env",
         env_file_encoding="utf-8",
         env_nested_delimiter="__",
-        # secrets_dir="/run/secrets",
-        secrets_dir=Path(__file__).resolve().parents[2]/"secrets",
+        secrets_dir="/run/secrets",
+        # secrets_dir=Path(__file__).resolve().parents[2]/"secrets",
         secrets_nested_delimiter="__",
         case_sensitive=False,
         extra="ignore"
@@ -76,4 +76,3 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-
