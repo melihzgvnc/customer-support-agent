@@ -45,55 +45,78 @@ The agent is built as a stateful graph with the following workflow:
 
 ### Prerequisites
 
-- Python 3.11+
-- UV package manager (recommended)
+- Docker & Docker Compose
+- Environment variables configured in `.env`
 
-### Installation
+### Quick Start
 
 ```bash
-# Install dependencies
-uv sync
+# Start all services
+docker compose up -d
 
-# Or with pip
-pip install -e .
+# View logs
+docker compose logs -f api
+
+# Stop services
+docker compose down
 ```
 
-### Environment Variables
+The API will be available at `http://localhost:9000`.
 
-Create a `.env` file with:
+### Services
 
+The application runs as a multi-container system:
+
+- **API** (`api`) - FastAPI application on port 9000
+- **ChromaDB** (`chromadb`) - Vector database on port 8000
+- **Garage** (`garage`) - S3-compatible object storage on port 3900
+- **PostgreSQL** (`db`) - Relational database for LangGraph checkpointing
+- **Ingestion** (`ingest`) - One-off data ingestion job (profile: `ingest`)
+
+### Configuration
+
+Create a `.env` file and `secrets/` directory with required credentials:
+
+```env
+OPENAI_API_KEY=your_key
+DB__POSTGRES_USER=postgres
+DB__POSTGRES_DB=support_agent
+# See compose.yaml for additional environment variables
 ```
-OPENAI_API_KEY=your_api_key
-```
+
+Required secrets in `secrets/`:
+- `llm__openai_api_key`
+- `db__postgres_password`
+- `db__s3_access_key_id`
+- `db__s3_secret_access_key`
+- Additional secrets listed in `compose.secrets.yaml`
 
 ## Usage
 
-### Running the Agent
+### API Endpoints
 
-```python
-from support_agent.graph.builder import graph
+```bash
+# Health check
+curl http://localhost:9000/health
 
-result = graph.invoke({"messages": [{"role": "user", "content": "How do I reset my password?"}]})
-print(result)
+# Chat endpoint
+curl -X POST http://localhost:9000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"messages": [{"role": "user", "content": "How do I reset my password?"}]}'
 ```
 
 ### Ingesting New Data
 
 ```bash
-python -m support_agent.ingestion.ingest
+# Run ingestion job
+docker compose --profile ingest up ingest
+
+# Or rebuild and run
+docker compose build ingest
+docker compose --profile ingest up ingest
 ```
 
-Place your knowledge base documents in `src/data/` with the format:
-
-```json
-[
-  {
-    "id": "unique-id",
-    "text": "Document content...",
-    "metadata": {"source": "faq", "category": "account"}
-  }
-]
-```
+Place knowledge base documents in `data/raw_data/` following the expected JSON schema.
 
 ## Features
 
@@ -108,7 +131,11 @@ Place your knowledge base documents in `src/data/` with the format:
 
 - **LangGraph** - Workflow orchestration
 - **LangChain** - LLM abstraction
+- **FastAPI** - API framework
+- **Docker Compose** - Container orchestration
 - **ChromaDB** - Vector database
+- **PostgreSQL** - Checkpointing & persistence
+- **Garage** - S3-compatible object storage
 - **Rank BM25** - Sparse retrieval
 - **Sentence Transformers** - Embeddings
 - **OpenAI** - Language models
@@ -117,14 +144,43 @@ Place your knowledge base documents in `src/data/` with the format:
 
 ```
 support-agent/
-├── src/
+├── src/support_agent/
+│   ├── api/            # FastAPI application
 │   ├── graph/          # LangGraph workflow
 │   ├── model/          # Model configurations
 │   ├── prompts/        # Prompt templates
-│   ├── index/          # Search indexes
-│   ├── ingestion/      # Data pipeline
-│   ├── integrations/   # External services (Zendesk)
-│   └── data/           # Knowledge base
-├── main.py             # Entry point
+│   ├── services/       # Business logic
+│   └── integrations/   # External services (Zendesk)
+├── data/
+│   ├── ingestion/      # Data pipeline scripts
+│   ├── raw_data/       # Source documents
+│   └── index/          # Search indexes (volumes)
+├── secrets/            # Docker secrets
+├── Dockerfile          # Multi-stage container build
+├── compose.yaml        # Service orchestration
 └── pyproject.toml      # Project config
+```
+
+## Development
+
+### Local Development with Hot Reload
+
+```bash
+# Start services with watch mode
+docker compose watch
+
+# Changes to src/ trigger automatic restart
+```
+
+### Manual Python Setup (without Docker)
+
+```bash
+# Install UV
+pip install uv
+
+# Install dependencies
+uv sync
+
+# Run locally
+uv run uvicorn support_agent.api.app:app --reload
 ```
